@@ -173,6 +173,25 @@ export function TrainerPage() {
     <main className="trainer-page">
       <header className="header-bar">
         <h1>{text.appTitle}</h1>
+        <div className="lang-control">
+          <select
+            id="language"
+            className="lang-select"
+            aria-label={text.language}
+            value={language}
+            onChange={(event) => {
+              const nextLanguage = event.target.value as Language;
+              setLanguage(nextLanguage);
+              saveLanguage(nextLanguage);
+            }}
+          >
+            {languageOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </header>
 
       <section className="control-bar">
@@ -201,22 +220,6 @@ export function TrainerPage() {
             {availableLessons.map((lesson) => (
               <option key={lesson.id} value={lesson.id}>
                 {getLessonLabel(language, lesson.id, lesson.label)}
-              </option>
-            ))}
-          </select>
-          <label htmlFor="language">{text.language}</label>
-          <select
-            id="language"
-            value={language}
-            onChange={(event) => {
-              const nextLanguage = event.target.value as Language;
-              setLanguage(nextLanguage);
-              saveLanguage(nextLanguage);
-            }}
-          >
-            {languageOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
               </option>
             ))}
           </select>
