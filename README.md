@@ -3,6 +3,9 @@
 A desktop-first web app to train correct finger habits for touch typing.
 This MVP focuses on muscle memory and accuracy, not speed.
 
+## Live Demo
+- https://spfrank01.github.io/typing_tranier/
+
 ## MVP Focus
 - Step-by-step typing (one strict flow).
 - Wrong key blocks progress.
@@ -10,7 +13,8 @@ This MVP focuses on muscle memory and accuracy, not speed.
 - Repetition for weak keys inside the same session.
 - Session summary shows finger accuracy and problematic finger.
 - Progress is saved in `localStorage`.
-- Language switcher (English/Thai) with persisted preference.
+- Language switcher (English/Thai) in the top-right with persisted preference.
+- Modernized UI with dominant focus area, compact controls, keyboard legend, and feedback animations.
 
 ## Training Modes
 1. Learning
@@ -61,12 +65,11 @@ src/
 
 ## Current Status
 - Core MVP is implemented and build passes.
-- Core backlog is complete (including tests and i18n).
+- Core backlog is complete, including tests, i18n, and UI modernization.
 
 ## Notes
 - Node `18.14.0` works for build, but some ESLint packages warn they prefer `>=18.18.0`.
 
 ## Next Planned Work
-1. Unit tests for reducer, key normalization, scoring, and reinforcement.
-2. Integration tests for lesson completion and persistence restore.
-3. Manual acceptance checks from `TASKS.md`.
+1. Optional: add CI workflow for `test + build` checks on push.
+2. Optional: replace text-based hand cards with SVG hand illustration.
