@@ -1,0 +1,61 @@
+# Typing Finger Habit Trainer
+
+A desktop-first web app to train correct finger habits for touch typing.
+This MVP focuses on muscle memory and accuracy, not speed.
+
+## MVP Focus
+- Step-by-step typing (one strict flow).
+- Wrong key blocks progress.
+- Expected key and expected finger are highlighted every step.
+- Repetition for weak keys inside the same session.
+- Session summary shows finger accuracy and problematic finger.
+- Progress is saved in `localStorage`.
+- Language switcher (English/Thai) with persisted preference.
+
+## Tech Stack
+- React
+- TypeScript
+- Vite
+- Plain CSS
+
+## Requirements and Specs
+- Product requirements: [REQUIREMENTS.md](C:\Users\Frank\Desktop\Playground\typing_traning\REQUIREMENTS.md)
+- Technical spec: [TECH_SPEC.md](C:\Users\Frank\Desktop\Playground\typing_traning\TECH_SPEC.md)
+- Task checklist: [TASKS.md](C:\Users\Frank\Desktop\Playground\typing_traning\TASKS.md)
+- Progress tracking: [PROGRESS.md](C:\Users\Frank\Desktop\Playground\typing_traning\PROGRESS.md)
+
+## Run Locally
+```bash
+npm install
+npm run dev
+```
+
+Open the local URL shown by Vite (usually `http://localhost:5173`).
+
+## Build
+```bash
+npm run build
+npm run preview
+```
+
+## Project Structure
+```txt
+src/
+  app/
+  components/
+  core/
+  features/trainer/
+  styles/
+```
+
+## Current Status
+- Core MVP is implemented and build passes.
+- Core backlog is complete (including tests and i18n).
+
+## Notes
+- Node `18.14.0` works for build, but some ESLint packages warn they prefer `>=18.18.0`.
+
+## Next Planned Work
+1. Unit tests for reducer, key normalization, scoring, and reinforcement.
+2. Integration tests for lesson completion and persistence restore.
+3. Manual acceptance checks from `TASKS.md`.
