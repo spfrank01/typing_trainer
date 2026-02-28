@@ -30,6 +30,19 @@ export function KeyboardView({ expectedKey }: KeyboardViewProps) {
 
   return (
     <section className="keyboard-view" aria-label="Keyboard map">
+      <div className="keyboard-legend">
+        <span className="legend-title">Color = Assigned Finger</span>
+        <div className="legend-items">
+          <span className="legend-dot l-pinky">L Pinky</span>
+          <span className="legend-dot l-ring">L Ring</span>
+          <span className="legend-dot l-middle">L Middle</span>
+          <span className="legend-dot l-index">L Index</span>
+          <span className="legend-dot r-index">R Index</span>
+          <span className="legend-dot r-middle">R Middle</span>
+          <span className="legend-dot r-ring">R Ring</span>
+          <span className="legend-dot r-pinky">R Pinky</span>
+        </div>
+      </div>
       {rows.map((row, rowIndex) => (
         <div className="key-row" key={`row-${rowIndex}`}>
           {row.map((key) => {

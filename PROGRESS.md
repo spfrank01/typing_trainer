@@ -37,12 +37,21 @@ Project: Typing Finger Habit Trainer (MVP v2)
 - localized reducer feedback messages
 - localized lesson labels and summary recommendations
 - persisted language preference in `localStorage`
+- UI modernization pass implemented from review:
+- stronger section hierarchy and dominant focus area
+- compact styled control bar and primary CTA
+- redesigned finger cards and keyboard legend
+- improved spacing/typography consistency
+- in-focus feedback animation (flash/shake)
+- footer status chips with streak
+- responsive and accessibility improvements
 
 ## In Progress
 - None.
 
 ## Next Actions
 1. Optional: add CI workflow for test + build checks on push.
+2. Optional: replace text-based hand cards with SVG hand illustration.
 
 ## Risks / Notes
 - Local environment uses Node `18.14.0`; ESLint packages warn they prefer `>=18.18.0`.

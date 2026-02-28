@@ -1,9 +1,11 @@
 import { PersistedProgress, SessionResult } from "./types";
 import { Language } from "./i18n";
+import { TrainerMode } from "./modes";
 
 const progressKey = "tft_progress_v1";
 const historyKey = "tft_history_v1";
 const languageKey = "tft_language_v1";
+const modeKey = "tft_mode_v1";
 
 const defaultProgress: PersistedProgress = {
   unlockedLevel: 1,
@@ -60,4 +62,16 @@ export function loadLanguage(): Language {
 
 export function saveLanguage(language: Language): void {
   localStorage.setItem(languageKey, language);
+}
+
+export function loadMode(): TrainerMode {
+  const raw = localStorage.getItem(modeKey);
+  if (raw === "learning" || raw === "daily_routine" || raw === "daily_focus") {
+    return raw;
+  }
+  return "learning";
+}
+
+export function saveMode(mode: TrainerMode): void {
+  localStorage.setItem(modeKey, mode);
 }

@@ -12,6 +12,17 @@ This MVP focuses on muscle memory and accuracy, not speed.
 - Progress is saved in `localStorage`.
 - Language switcher (English/Thai) with persisted preference.
 
+## Training Modes
+1. Learning
+- Uses level-based lessons (Level 1-5).
+
+2. Daily Routine
+- Fixed daily sequence based on `note/Daily Finger Routine Mode.md`.
+- Warm-up, top row, bottom row, alphabet flow, numbers/shift, then weak-finger reinforcement.
+
+3. Daily Focus
+- Short focused routine with extra repetition for the latest weak finger.
+
 ## Tech Stack
 - React
 - TypeScript

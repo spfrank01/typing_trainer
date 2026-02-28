@@ -93,3 +93,17 @@
 5. Summary + persistence.
 6. Reinforcement engine.
 7. Tests and QA.
+
+## 14. UI Review Tasks (Modern UX Pass)
+- [x] Strengthen visual hierarchy with dominant typing focus area.
+- [x] Split layout into clear sections: header, control bar, focus area, hands+keyboard, footer bar.
+- [x] Apply consistent spacing system (8/16/24/32 scale).
+- [x] Improve typography scale and character prominence.
+- [x] Restyle controls and primary action button with hover/active states.
+- [x] Redesign finger section to card layout (non-input appearance).
+- [x] Add keyboard legend for finger-color mapping.
+- [x] Improve keyboard visual depth and enlarge space key.
+- [x] Add in-focus feedback animation (correct flash, wrong shake).
+- [x] Convert footer stats to compact status chips including streak.
+- [x] Improve accessibility cues (focus-visible, non-color active states).
+- [x] Add responsive adjustments for narrower screens.

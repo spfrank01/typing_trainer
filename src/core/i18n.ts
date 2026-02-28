@@ -11,12 +11,15 @@ export const copy = {
   en: {
     appTitle: "Typing Finger Habit Trainer",
     lesson: "Lesson",
+    mode: "Mode",
     language: "Language",
     start: "Start",
     restart: "Restart",
     fingerAccuracy: "Finger accuracy",
     unlockedLevel: "Unlocked level",
     completedSessions: "Completed sessions",
+    streak: "Streak",
+    dayUnit: "days",
     pressStart: "Press Start to begin.",
     sessionComplete: "Session Complete",
     totalCharacters: "Total characters",
@@ -24,6 +27,11 @@ export const copy = {
     none: "None",
     restartLesson: "Restart Lesson",
     nextLesson: "Next Lesson",
+    modes: {
+      learning: "Learning",
+      daily_routine: "Daily Routine",
+      daily_focus: "Daily Focus"
+    },
     levelLabels: {
       "level-1-home-row": "Level 1 - Home Row",
       "level-2-top-row": "Level 2 - Add QWER UIOP",
@@ -35,12 +43,15 @@ export const copy = {
   th: {
     appTitle: "ฝึกนิ้วพิมพ์ให้ถูกตำแหน่ง",
     lesson: "บทเรียน",
+    mode: "โหมด",
     language: "ภาษา",
     start: "เริ่ม",
     restart: "เริ่มใหม่",
     fingerAccuracy: "ความแม่นยำนิ้ว",
     unlockedLevel: "เลเวลที่ปลดล็อก",
     completedSessions: "จำนวนรอบที่จบ",
+    streak: "สตรีค",
+    dayUnit: "วัน",
     pressStart: "กดเริ่มเพื่อฝึก",
     sessionComplete: "จบบทเรียนแล้ว",
     totalCharacters: "จำนวนตัวอักษรทั้งหมด",
@@ -48,6 +59,11 @@ export const copy = {
     none: "ไม่มี",
     restartLesson: "ฝึกบทเรียนเดิม",
     nextLesson: "บทเรียนถัดไป",
+    modes: {
+      learning: "โหมดเรียนรู้",
+      daily_routine: "รูทีนประจำวัน",
+      daily_focus: "โฟกัสนิ้วอ่อน"
+    },
     levelLabels: {
       "level-1-home-row": "เลเวล 1 - แถว Home Row",
       "level-2-top-row": "เลเวล 2 - เพิ่ม QWER UIOP",

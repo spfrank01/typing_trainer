@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { ContextText } from "../../components/ContextText";
-import { FeedbackBanner } from "../../components/FeedbackBanner";
 import { FocusCharacter } from "../../components/FocusCharacter";
 import { HandDiagram } from "../../components/HandDiagram";
 import { KeyboardView } from "../../components/KeyboardView";
@@ -10,13 +9,16 @@ import { getLessonById, getLessons } from "../../core/lessons";
 import { copy, getLessonLabel, languageOptions, Language } from "../../core/i18n";
 import { getFingerForKey } from "../../core/layoutMap";
 import { fromContentToStream, isModifierKey, normalizeKey } from "../../core/keyUtils";
+import { buildModeSession, TrainerMode } from "../../core/modes";
 import { buildSessionResult } from "../../core/scoring";
 import {
   appendHistory,
   loadHistory,
   loadLanguage,
+  loadMode,
   loadProgress,
   saveLanguage,
+  saveMode,
   saveProgress
 } from "../../core/storage";
 import { SessionResult } from "../../core/types";
@@ -27,6 +29,7 @@ export function TrainerPage() {
   const lessons = getLessons();
   const persisted = loadProgress();
   const [language, setLanguage] = useState<Language>(() => loadLanguage());
+  const [mode, setMode] = useState<TrainerMode>(() => loadMode());
   const [selectedLessonId, setSelectedLessonId] = useState<string>(persisted.lastLessonId);
   const [unlockedLevel, setUnlockedLevel] = useState<number>(persisted.unlockedLevel);
   const [history, setHistory] = useState<SessionResult[]>(() => loadHistory());
@@ -43,6 +46,7 @@ export function TrainerPage() {
   const progressPercent = getProgressPercent(state);
   const fingerAccuracy = getFingerAccuracy(state);
   const text = copy[language];
+  const streakDays = useMemo(() => computeStreak(history), [history]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -93,6 +97,11 @@ export function TrainerPage() {
     const nextHistory = appendHistory(result);
     setHistory(nextHistory);
 
+    if (mode !== "learning") {
+      completedSavedRef.current = completionKey;
+      return;
+    }
+
     if (selectedLesson.level >= unlockedLevel) {
       setUnlockedLevel(Math.min(5, selectedLesson.level + 1));
       saveProgress({
@@ -107,7 +116,7 @@ export function TrainerPage() {
     }
 
     completedSavedRef.current = completionKey;
-  }, [selectedLesson, state, unlockedLevel]);
+  }, [mode, selectedLesson, state, unlockedLevel]);
 
   const currentResult = useMemo(() => {
     if (state.phase !== "completed" || !state.startedAt || !state.endedAt) {
@@ -123,6 +132,8 @@ export function TrainerPage() {
   }, [state]);
 
   const availableLessons = lessons.filter((lesson) => lesson.level <= unlockedLevel);
+  const lastWeakFinger = history.length > 0 ? history[history.length - 1].problematicFinger : null;
+  const startLabel = state.phase === "running" ? text.restart : text.start;
 
   function startLesson(lessonId: string) {
     const lesson = getLessonById(lessonId);
@@ -130,16 +141,25 @@ export function TrainerPage() {
       return;
     }
     completedSavedRef.current = null;
+    const session = buildModeSession({
+      mode,
+      lesson,
+      lastWeakFinger
+    });
     dispatch({
       type: "START_LESSON",
-      lessonId: lesson.id,
-      stream: fromContentToStream(lesson.content),
+      lessonId: session.id,
+      stream: fromContentToStream(session.content),
       startedAt: Date.now(),
       language
     });
   }
 
   function goToNextLesson() {
+    if (mode !== "learning") {
+      startLesson(selectedLesson.id);
+      return;
+    }
     const currentIndex = lessons.findIndex((lesson) => lesson.id === selectedLesson.id);
     const nextLesson = lessons[currentIndex + 1];
     if (!nextLesson || nextLesson.level > unlockedLevel) {
@@ -151,13 +171,31 @@ export function TrainerPage() {
 
   return (
     <main className="trainer-page">
-      <header className="top-bar">
+      <header className="header-bar">
         <h1>{text.appTitle}</h1>
+      </header>
+
+      <section className="control-bar">
         <div className="lesson-controls">
+          <label htmlFor="mode">{text.mode}</label>
+          <select
+            id="mode"
+            value={mode}
+            onChange={(event) => {
+              const nextMode = event.target.value as TrainerMode;
+              setMode(nextMode);
+              saveMode(nextMode);
+            }}
+          >
+            <option value="learning">{text.modes.learning}</option>
+            <option value="daily_routine">{text.modes.daily_routine}</option>
+            <option value="daily_focus">{text.modes.daily_focus}</option>
+          </select>
           <label htmlFor="lesson">{text.lesson}</label>
           <select
             id="lesson"
             value={selectedLesson.id}
+            disabled={mode !== "learning"}
             onChange={(event) => setSelectedLessonId(event.target.value)}
           >
             {availableLessons.map((lesson) => (
@@ -183,16 +221,12 @@ export function TrainerPage() {
             ))}
           </select>
           <button type="button" onClick={() => startLesson(selectedLesson.id)}>
-            {state.phase === "running" ? text.restart : text.start}
+            {startLabel}
           </button>
         </div>
-      </header>
+      </section>
 
       <ProgressBar progressPercent={progressPercent} />
-      <FeedbackBanner
-        type={state.lastFeedback?.type}
-        message={state.lastFeedback?.message ?? text.pressStart}
-      />
 
       {currentResult ? (
         <SessionSummary
@@ -200,30 +234,74 @@ export function TrainerPage() {
           result={currentResult}
           onRestart={() => startLesson(selectedLesson.id)}
           onNext={goToNextLesson}
-          hasNext={selectedLesson.level < unlockedLevel}
+          hasNext={mode === "learning" && selectedLesson.level < unlockedLevel}
         />
       ) : (
         <>
           <section className="focus-panel">
-            <FocusCharacter value={expectedKey} />
+            <FocusCharacter value={expectedKey} status={state.lastFeedback?.type} />
             <p className="metric">
               {text.fingerAccuracy}: {fingerAccuracy.toFixed(1)}%
             </p>
+            <p className={`focus-feedback ${state.lastFeedback?.type ?? "info"}`}>
+              {state.lastFeedback?.message ?? text.pressStart}
+            </p>
           </section>
-          <ContextText stream={state.stream} cursor={state.cursor} />
-          <HandDiagram activeFinger={expectedFinger} />
-          <KeyboardView expectedKey={expectedKey} />
+          <section className="train-core">
+            <ContextText stream={state.stream} cursor={state.cursor} />
+            <HandDiagram activeFinger={expectedFinger} />
+            <KeyboardView expectedKey={expectedKey} />
+          </section>
         </>
       )}
 
-      <footer className="trainer-footer">
-        <p>
+      <footer className="status-bar">
+        <p className="status-chip">
           {text.unlockedLevel}: {unlockedLevel}
         </p>
-        <p>
+        <p className="status-chip">
           {text.completedSessions}: {history.length}
+        </p>
+        <p className="status-chip">
+          {text.streak}: {streakDays} {text.dayUnit}
         </p>
       </footer>
     </main>
   );
+}
+
+function computeStreak(history: SessionResult[]): number {
+  if (history.length === 0) {
+    return 0;
+  }
+
+  const toDayId = (timestamp: number): number => {
+    const date = new Date(timestamp);
+    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
+  const uniqueDays = Array.from(
+    new Set(history.map((item) => toDayId(item.endedAt)).sort((a, b) => a - b))
+  ) as number[];
+
+  let streak = 1;
+  for (let i = uniqueDays.length - 1; i > 0; i -= 1) {
+    const current = uniqueDays[i];
+    const previous = uniqueDays[i - 1];
+    const diffDays = Math.round((current - previous) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      streak += 1;
+    } else {
+      break;
+    }
+  }
+
+  const deltaFromToday = Math.round(
+    (toDayId(Date.now()) - uniqueDays[uniqueDays.length - 1]) / (1000 * 60 * 60 * 24)
+  );
+
+  if (deltaFromToday > 1) {
+    return 0;
+  }
+  return streak;
 }
