@@ -13,7 +13,5 @@ export function getProgressPercent(state: TrainerState): number {
 }
 
 export function getFingerAccuracy(state: TrainerState): number {
-  const total = state.keystrokes.length;
-  const errors = state.keystrokes.filter((log) => !log.correct).length;
-  return calculateFingerAccuracy(total, errors);
+  return calculateFingerAccuracy(state.totalKeystrokes, state.errorKeystrokes);
 }

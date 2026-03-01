@@ -107,3 +107,18 @@
 - [x] Convert footer stats to compact status chips including streak.
 - [x] Improve accessibility cues (focus-visible, non-color active states).
 - [x] Add responsive adjustments for narrower screens.
+
+## 15. Mode System
+- [x] Add mode model (`learning`, `daily_routine`, `daily_focus`) in `src/core/modes.ts`.
+- [x] Build mode session generator with weak-finger-aware content strategy.
+- [x] Add mode selector in `TrainerPage` and wire mode-specific session start flow.
+- [x] Persist selected mode in `localStorage` and restore on app load.
+
+## 16. Random Sentence Mode Content
+- Resources:
+  - `./note/Random Sentence Mode.md`
+  - `./note/Random Sentence Real Pools.md`
+- [x] Define `random_sentence` mode concept with difficulty-based content pools (easy/medium/hard).
+- [x] Specify rule: one pool item = one paragraph (not one sentence).
+- [x] Create real paragraph pools for all 3 difficulty levels.
+- [x] Expand pool size to reduce repetition risk (15 paragraphs per difficulty).

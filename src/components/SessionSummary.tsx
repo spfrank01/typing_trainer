@@ -27,7 +27,7 @@ export function SessionSummary({ language, result, onRestart, onNext, hasNext }:
       </p>
       <p>
         {text.mostProblematicFinger}:{" "}
-        {result.problematicFinger ? formatFingerLabel(result.problematicFinger) : text.none}
+        {result.problematicFinger ? formatFingerLabel(result.problematicFinger, language) : text.none}
       </p>
       <p>{recommendationForFinger(result.problematicFinger, language)}</p>
       <div className="summary-actions">

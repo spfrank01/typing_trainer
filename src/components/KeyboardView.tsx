@@ -1,9 +1,11 @@
-import { getLayoutMap } from "../core/layoutMap";
+import { getTrainerUiCopy, Language } from "../core/i18n";
+import { formatFingerLabel, getLayoutMap } from "../core/layoutMap";
 import { Finger } from "../core/types";
 import { renderKeyLabel } from "../core/keyUtils";
 
 interface KeyboardViewProps {
   expectedKey: string | null;
+  language: Language;
 }
 
 const rows = [
@@ -25,22 +27,31 @@ const fingerClass: Record<Finger, string> = {
   THUMB: "thumb"
 };
 
-export function KeyboardView({ expectedKey }: KeyboardViewProps) {
+const legendOrder: Finger[] = [
+  "L_PINKY",
+  "L_RING",
+  "L_MIDDLE",
+  "L_INDEX",
+  "R_INDEX",
+  "R_MIDDLE",
+  "R_RING",
+  "R_PINKY"
+];
+
+export function KeyboardView({ expectedKey, language }: KeyboardViewProps) {
   const map = getLayoutMap();
+  const ui = getTrainerUiCopy(language);
 
   return (
-    <section className="keyboard-view" aria-label="Keyboard map">
+    <section className="keyboard-view" aria-label={ui.keyboardMap}>
       <div className="keyboard-legend">
-        <span className="legend-title">Color = Assigned Finger</span>
+        <span className="legend-title">{ui.keyboardLegendTitle}</span>
         <div className="legend-items">
-          <span className="legend-dot l-pinky">L Pinky</span>
-          <span className="legend-dot l-ring">L Ring</span>
-          <span className="legend-dot l-middle">L Middle</span>
-          <span className="legend-dot l-index">L Index</span>
-          <span className="legend-dot r-index">R Index</span>
-          <span className="legend-dot r-middle">R Middle</span>
-          <span className="legend-dot r-ring">R Ring</span>
-          <span className="legend-dot r-pinky">R Pinky</span>
+          {legendOrder.map((finger) => (
+            <span key={finger} className={`legend-dot ${fingerClass[finger]}`}>
+              {formatFingerLabel(finger, language)}
+            </span>
+          ))}
         </div>
       </div>
       {rows.map((row, rowIndex) => (

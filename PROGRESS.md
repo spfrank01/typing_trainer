@@ -1,6 +1,6 @@
 # Progress Tracker
 
-Last updated: 2026-02-28
+Last updated: 2026-03-01
 Project: Typing Finger Habit Trainer (MVP v2)
 
 ## Current Status
@@ -45,6 +45,12 @@ Project: Typing Finger Habit Trainer (MVP v2)
 - in-focus feedback animation (flash/shake)
 - footer status chips with streak
 - responsive and accessibility improvements
+- Random sentence mode implemented:
+- new `random_sentence` mode with difficulty selector (`easy`, `medium`, `hard`)
+- 15 real paragraph pools per difficulty
+- no-immediate-repeat selection rule
+- persisted sentence difficulty in `localStorage`
+- tests added for difficulty mode behavior and restore flow
 
 ## In Progress
 - None.

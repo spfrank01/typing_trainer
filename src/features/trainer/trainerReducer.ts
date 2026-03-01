@@ -15,6 +15,8 @@ export interface TrainerState {
     message: string;
   };
   keystrokes: KeystrokeLog[];
+  totalKeystrokes: number;
+  errorKeystrokes: number;
   mistakeCountByKey: Record<string, number>;
   startedAt: number | null;
   endedAt: number | null;
@@ -36,6 +38,8 @@ export const initialTrainerState: TrainerState = {
   cursor: 0,
   lastFeedback: null,
   keystrokes: [],
+  totalKeystrokes: 0,
+  errorKeystrokes: 0,
   mistakeCountByKey: {},
   startedAt: null,
   endedAt: null
@@ -54,6 +58,8 @@ export function trainerReducer(state: TrainerState, action: TrainerAction): Trai
           message: getReducerMessage(action.language, "lessonStarted")
         },
         keystrokes: [],
+        totalKeystrokes: 0,
+        errorKeystrokes: 0,
         mistakeCountByKey: {},
         startedAt: action.startedAt,
         endedAt: null
@@ -102,6 +108,7 @@ export function trainerReducer(state: TrainerState, action: TrainerAction): Trai
       };
 
       const nextKeystrokes = [...state.keystrokes, keystroke];
+      const totalKeystrokes = state.totalKeystrokes + 1;
 
       if (correct) {
         const nextCursor = state.cursor + 1;
@@ -112,6 +119,7 @@ export function trainerReducer(state: TrainerState, action: TrainerAction): Trai
           cursor: nextCursor,
           endedAt: completed ? action.ts : null,
           keystrokes: nextKeystrokes,
+          totalKeystrokes,
           lastFeedback: {
             type: "correct",
             message: completed
@@ -138,11 +146,13 @@ export function trainerReducer(state: TrainerState, action: TrainerAction): Trai
         ...state,
         stream: nextStream,
         keystrokes: nextKeystrokes,
+        totalKeystrokes,
+        errorKeystrokes: state.errorKeystrokes + 1,
         mistakeCountByKey: nextMistakeCountByKey,
         lastFeedback: {
           type: "wrong",
           message: getReducerMessage(action.language, "wrong", {
-            fingerName: formatFingerLabel(expectedFinger)
+            fingerName: formatFingerLabel(expectedFinger, action.language)
           })
         }
       };

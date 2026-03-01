@@ -1,6 +1,7 @@
-import { Finger, Lesson } from "./types";
+import { Finger, Lesson, SentenceDifficulty } from "./types";
+import { getSentencePool } from "./sentences";
 
-export type TrainerMode = "learning" | "daily_routine" | "daily_focus";
+export type TrainerMode = "learning" | "daily_routine" | "daily_focus" | "random_sentence";
 
 interface ModeSession {
   id: string;
@@ -31,11 +32,22 @@ export function buildModeSession(params: {
   mode: TrainerMode;
   lesson: Lesson;
   lastWeakFinger: Finger | null;
+  sentenceDifficulty?: SentenceDifficulty;
+  lastSentence?: string | null;
 }): ModeSession {
-  const { mode, lesson, lastWeakFinger } = params;
+  const { mode, lesson, lastWeakFinger, sentenceDifficulty = "easy", lastSentence = null } = params;
 
   if (mode === "learning") {
     return { id: lesson.id, content: lesson.content };
+  }
+
+  if (mode === "random_sentence") {
+    const pool = getSentencePool(sentenceDifficulty);
+    const selected = pickSentenceWithoutImmediateRepeat(pool, lastSentence);
+    return {
+      id: `random-sentence-${sentenceDifficulty}`,
+      content: selected
+    };
   }
 
   if (mode === "daily_focus") {
@@ -51,4 +63,20 @@ export function buildModeSession(params: {
     id: "daily-routine",
     content: `${routineBase.join(" ")} ${weak}`
   };
+}
+
+function pickSentenceWithoutImmediateRepeat(pool: string[], lastSentence: string | null): string {
+  if (pool.length === 0) {
+    return "";
+  }
+
+  if (pool.length === 1 || !lastSentence) {
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  const options = pool.filter((item) => item !== lastSentence);
+  if (options.length === 0) {
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  return options[Math.floor(Math.random() * options.length)];
 }

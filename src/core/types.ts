@@ -9,6 +9,13 @@ export type Finger =
   | "R_PINKY"
   | "THUMB";
 
+export type SentenceDifficulty = "easy" | "medium" | "hard";
+
+export interface SentenceSet {
+  difficulty: SentenceDifficulty;
+  items: string[];
+}
+
 export interface Lesson {
   id: string;
   level: number;

@@ -1,4 +1,4 @@
-import { PersistedProgress, SessionResult } from "./types";
+import { PersistedProgress, SentenceDifficulty, SessionResult } from "./types";
 import { Language } from "./i18n";
 import { TrainerMode } from "./modes";
 
@@ -6,6 +6,7 @@ const progressKey = "tft_progress_v1";
 const historyKey = "tft_history_v1";
 const languageKey = "tft_language_v1";
 const modeKey = "tft_mode_v1";
+const sentenceDifficultyKey = "tft_sentence_difficulty_v1";
 
 const defaultProgress: PersistedProgress = {
   unlockedLevel: 1,
@@ -66,7 +67,12 @@ export function saveLanguage(language: Language): void {
 
 export function loadMode(): TrainerMode {
   const raw = localStorage.getItem(modeKey);
-  if (raw === "learning" || raw === "daily_routine" || raw === "daily_focus") {
+  if (
+    raw === "learning" ||
+    raw === "daily_routine" ||
+    raw === "daily_focus" ||
+    raw === "random_sentence"
+  ) {
     return raw;
   }
   return "learning";
@@ -74,4 +80,16 @@ export function loadMode(): TrainerMode {
 
 export function saveMode(mode: TrainerMode): void {
   localStorage.setItem(modeKey, mode);
+}
+
+export function loadSentenceDifficulty(): SentenceDifficulty {
+  const raw = localStorage.getItem(sentenceDifficultyKey);
+  if (raw === "easy" || raw === "medium" || raw === "hard") {
+    return raw;
+  }
+  return "easy";
+}
+
+export function saveSentenceDifficulty(difficulty: SentenceDifficulty): void {
+  localStorage.setItem(sentenceDifficultyKey, difficulty);
 }

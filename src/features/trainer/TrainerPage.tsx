@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useMemo, useReducer, useState } from "react";
 import { ContextText } from "../../components/ContextText";
 import { FocusCharacter } from "../../components/FocusCharacter";
 import { HandDiagram } from "../../components/HandDiagram";
@@ -6,35 +6,47 @@ import { KeyboardView } from "../../components/KeyboardView";
 import { ProgressBar } from "../../components/ProgressBar";
 import { SessionSummary } from "../../components/SessionSummary";
 import { getLessonById, getLessons } from "../../core/lessons";
-import { copy, getLessonLabel, languageOptions, Language } from "../../core/i18n";
-import { getFingerForKey } from "../../core/layoutMap";
-import { fromContentToStream, isModifierKey, normalizeKey } from "../../core/keyUtils";
-import { buildModeSession, TrainerMode } from "../../core/modes";
-import { buildSessionResult } from "../../core/scoring";
 import {
-  appendHistory,
+  copy,
+  getLessonLabel,
+  getModeLabel,
+  getSentenceDifficultyFieldLabel,
+  getSentenceDifficultyLabel,
+  languageOptions,
+  Language
+} from "../../core/i18n";
+import { getFingerForKey } from "../../core/layoutMap";
+import { fromContentToStream } from "../../core/keyUtils";
+import { buildModeSession, TrainerMode } from "../../core/modes";
+import {
   loadHistory,
   loadLanguage,
   loadMode,
   loadProgress,
+  loadSentenceDifficulty,
   saveLanguage,
   saveMode,
-  saveProgress
+  saveSentenceDifficulty
 } from "../../core/storage";
-import { SessionResult } from "../../core/types";
+import { SentenceDifficulty, SessionResult } from "../../core/types";
 import { getExpectedKey, getFingerAccuracy, getProgressPercent } from "./trainerSelectors";
 import { initialTrainerState, trainerReducer } from "./trainerReducer";
+import { useTrainerKeyboardInput } from "./useTrainerKeyboardInput";
+import { useTrainerCompletion } from "./useTrainerCompletion";
 
 export function TrainerPage() {
   const lessons = getLessons();
-  const persisted = loadProgress();
+  const [initialProgress] = useState(() => loadProgress());
   const [language, setLanguage] = useState<Language>(() => loadLanguage());
   const [mode, setMode] = useState<TrainerMode>(() => loadMode());
-  const [selectedLessonId, setSelectedLessonId] = useState<string>(persisted.lastLessonId);
-  const [unlockedLevel, setUnlockedLevel] = useState<number>(persisted.unlockedLevel);
+  const [sentenceDifficulty, setSentenceDifficulty] = useState<SentenceDifficulty>(() =>
+    loadSentenceDifficulty()
+  );
+  const [lastRandomSentence, setLastRandomSentence] = useState<string | null>(null);
+  const [selectedLessonId, setSelectedLessonId] = useState<string>(initialProgress.lastLessonId);
+  const [unlockedLevel, setUnlockedLevel] = useState<number>(initialProgress.unlockedLevel);
   const [history, setHistory] = useState<SessionResult[]>(() => loadHistory());
   const [state, dispatch] = useReducer(trainerReducer, initialTrainerState);
-  const completedSavedRef = useRef<string | null>(null);
 
   const selectedLesson = useMemo(
     () => getLessonById(selectedLessonId) ?? lessons[0],
@@ -47,91 +59,18 @@ export function TrainerPage() {
   const fingerAccuracy = getFingerAccuracy(state);
   const text = copy[language];
   const streakDays = useMemo(() => computeStreak(history), [history]);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const normalized = normalizeKey(event.key);
-      if (isModifierKey(event.key)) {
-        return;
-      }
-      if (state.phase !== "running") {
-        return;
-      }
-
-      if (normalized === "Backspace") {
-        event.preventDefault();
-        dispatch({ type: "BACKSPACE", language });
-        return;
-      }
-
-      if (normalized.length > 1 && normalized !== "space") {
-        event.preventDefault();
-        dispatch({ type: "UNSUPPORTED_KEY", key: event.key, language });
-        return;
-      }
-
-      event.preventDefault();
-      dispatch({ type: "HANDLE_KEY", actualKey: normalized, ts: Date.now(), language });
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [language, state.phase]);
-
-  useEffect(() => {
-    if (state.phase !== "completed" || !state.startedAt || !state.endedAt) {
-      return;
-    }
-    const completionKey = `${state.lessonId}-${state.endedAt}`;
-    if (completedSavedRef.current === completionKey) {
-      return;
-    }
-
-    const result = buildSessionResult({
-      lessonId: state.lessonId,
-      startedAt: state.startedAt,
-      endedAt: state.endedAt,
-      streamLength: state.stream.length,
-      logs: state.keystrokes
-    });
-    const nextHistory = appendHistory(result);
-    setHistory(nextHistory);
-
-    if (mode !== "learning") {
-      completedSavedRef.current = completionKey;
-      return;
-    }
-
-    if (selectedLesson.level >= unlockedLevel) {
-      setUnlockedLevel(Math.min(5, selectedLesson.level + 1));
-      saveProgress({
-        unlockedLevel: Math.min(5, selectedLesson.level + 1),
-        lastLessonId: selectedLesson.id
-      });
-    } else {
-      saveProgress({
-        unlockedLevel,
-        lastLessonId: selectedLesson.id
-      });
-    }
-
-    completedSavedRef.current = completionKey;
-  }, [mode, selectedLesson, state, unlockedLevel]);
-
-  const currentResult = useMemo(() => {
-    if (state.phase !== "completed" || !state.startedAt || !state.endedAt) {
-      return null;
-    }
-    return buildSessionResult({
-      lessonId: state.lessonId,
-      startedAt: state.startedAt,
-      endedAt: state.endedAt,
-      streamLength: state.stream.length,
-      logs: state.keystrokes
-    });
-  }, [state]);
+  useTrainerKeyboardInput({ phase: state.phase, language, dispatch });
+  const { currentResult, resetCompletionGuard } = useTrainerCompletion({
+    state,
+    mode,
+    selectedLesson,
+    unlockedLevel,
+    setUnlockedLevel,
+    setHistory
+  });
 
   const availableLessons = lessons.filter((lesson) => lesson.level <= unlockedLevel);
+  const sentenceDifficultyLabel = getSentenceDifficultyFieldLabel(language);
   const lastWeakFinger = history.length > 0 ? history[history.length - 1].problematicFinger : null;
   const startLabel = state.phase === "running" ? text.restart : text.start;
 
@@ -140,12 +79,17 @@ export function TrainerPage() {
     if (!lesson) {
       return;
     }
-    completedSavedRef.current = null;
+    resetCompletionGuard();
     const session = buildModeSession({
       mode,
       lesson,
-      lastWeakFinger
+      lastWeakFinger,
+      sentenceDifficulty,
+      lastSentence: lastRandomSentence
     });
+    if (mode === "random_sentence") {
+      setLastRandomSentence(session.content);
+    }
     dispatch({
       type: "START_LESSON",
       lessonId: session.id,
@@ -206,10 +150,29 @@ export function TrainerPage() {
               saveMode(nextMode);
             }}
           >
-            <option value="learning">{text.modes.learning}</option>
-            <option value="daily_routine">{text.modes.daily_routine}</option>
-            <option value="daily_focus">{text.modes.daily_focus}</option>
+            <option value="learning">{getModeLabel(language, "learning")}</option>
+            <option value="daily_routine">{getModeLabel(language, "daily_routine")}</option>
+            <option value="daily_focus">{getModeLabel(language, "daily_focus")}</option>
+            <option value="random_sentence">{getModeLabel(language, "random_sentence")}</option>
           </select>
+          {mode === "random_sentence" ? (
+            <>
+              <label htmlFor="sentence-difficulty">{sentenceDifficultyLabel}</label>
+              <select
+                id="sentence-difficulty"
+                value={sentenceDifficulty}
+                onChange={(event) => {
+                  const nextDifficulty = event.target.value as SentenceDifficulty;
+                  setSentenceDifficulty(nextDifficulty);
+                  saveSentenceDifficulty(nextDifficulty);
+                }}
+              >
+                <option value="easy">{getSentenceDifficultyLabel(language, "easy")}</option>
+                <option value="medium">{getSentenceDifficultyLabel(language, "medium")}</option>
+                <option value="hard">{getSentenceDifficultyLabel(language, "hard")}</option>
+              </select>
+            </>
+          ) : null}
           <label htmlFor="lesson">{text.lesson}</label>
           <select
             id="lesson"
@@ -252,8 +215,8 @@ export function TrainerPage() {
           </section>
           <section className="train-core">
             <ContextText stream={state.stream} cursor={state.cursor} />
-            <HandDiagram activeFinger={expectedFinger} />
-            <KeyboardView expectedKey={expectedKey} />
+            <HandDiagram activeFinger={expectedFinger} language={language} />
+            <KeyboardView expectedKey={expectedKey} language={language} />
           </section>
         </>
       )}

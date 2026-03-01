@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 import { getLessonById } from "../../core/lessons";
 import { fromContentToStream } from "../../core/keyUtils";
+import { getSentencePool } from "../../core/sentences";
 import { TrainerPage } from "./TrainerPage";
 
 describe("TrainerPage integration", () => {
@@ -47,5 +48,38 @@ describe("TrainerPage integration", () => {
 
     fireEvent.keyDown(window, { key: "Enter" });
     expect(screen.getByText(/Unsupported key/)).toBeInTheDocument();
+  });
+
+  it("shows difficulty selector and starts a random sentence session", () => {
+    const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
+
+    render(<TrainerPage />);
+
+    fireEvent.change(screen.getByLabelText("Mode"), {
+      target: { value: "random_sentence" }
+    });
+
+    const difficultySelect = screen.getByLabelText("Difficulty") as HTMLSelectElement;
+    expect(difficultySelect).toBeInTheDocument();
+    expect(difficultySelect.value).toBe("easy");
+
+    fireEvent.change(difficultySelect, { target: { value: "hard" } });
+    fireEvent.click(screen.getByRole("button", { name: "Start" }));
+
+    const firstHardParagraph = getSentencePool("hard")[0];
+    const firstExpectedChar = firstHardParagraph[0].toLowerCase();
+    expect(screen.getByText(firstExpectedChar, { selector: ".focus-char" })).toBeInTheDocument();
+
+    randomSpy.mockRestore();
+  });
+
+  it("restores sentence difficulty from localStorage", () => {
+    localStorage.setItem("tft_mode_v1", "random_sentence");
+    localStorage.setItem("tft_sentence_difficulty_v1", "hard");
+
+    render(<TrainerPage />);
+
+    const difficultySelect = screen.getByLabelText("Difficulty") as HTMLSelectElement;
+    expect(difficultySelect.value).toBe("hard");
   });
 });

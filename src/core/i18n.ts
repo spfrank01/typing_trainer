@@ -1,4 +1,6 @@
 import { Finger } from "./types";
+import { SentenceDifficulty } from "./types";
+import { TrainerMode } from "./modes";
 
 export type Language = "en" | "th";
 
@@ -154,4 +156,93 @@ export function recommendationByFinger(finger: Finger | null, language: Language
     THUMB: "Practice Thumb more. Keep spacing rhythm steady between words."
   };
   return enAdvice[finger];
+}
+
+export function getTrainerUiCopy(language: Language): {
+  handGuide: string;
+  leftHand: string;
+  rightHand: string;
+  keyboardMap: string;
+  keyboardLegendTitle: string;
+} {
+  if (language === "th") {
+    return {
+      handGuide: "คำแนะนำนิ้ว",
+      leftHand: "มือซ้าย",
+      rightHand: "มือขวา",
+      keyboardMap: "ผังคีย์บอร์ด",
+      keyboardLegendTitle: "สี = นิ้วที่แนะนำ"
+    };
+  }
+
+  return {
+    handGuide: "Finger guide",
+    leftHand: "Left Hand",
+    rightHand: "Right Hand",
+    keyboardMap: "Keyboard map",
+    keyboardLegendTitle: "Color = Assigned Finger"
+  };
+}
+
+export function getModeLabel(language: Language, mode: TrainerMode): string {
+  if (language === "th") {
+    switch (mode) {
+      case "learning":
+        return "โหมดเรียนรู้";
+      case "daily_routine":
+        return "รูทีนประจำวัน";
+      case "daily_focus":
+        return "โฟกัสนิ้วอ่อน";
+      case "random_sentence":
+        return "สุ่มย่อหน้า";
+      default:
+        return mode;
+    }
+  }
+
+  switch (mode) {
+    case "learning":
+      return "Learning";
+    case "daily_routine":
+      return "Daily Routine";
+    case "daily_focus":
+      return "Daily Focus";
+    case "random_sentence":
+      return "Random Sentence";
+    default:
+      return mode;
+  }
+}
+
+export function getSentenceDifficultyLabel(
+  language: Language,
+  difficulty: SentenceDifficulty
+): string {
+  if (language === "th") {
+    switch (difficulty) {
+      case "easy":
+        return "ง่าย";
+      case "medium":
+        return "ปานกลาง";
+      case "hard":
+        return "ยาก";
+      default:
+        return difficulty;
+    }
+  }
+
+  switch (difficulty) {
+    case "easy":
+      return "Easy";
+    case "medium":
+      return "Medium";
+    case "hard":
+      return "Hard";
+    default:
+      return difficulty;
+  }
+}
+
+export function getSentenceDifficultyFieldLabel(language: Language): string {
+  return language === "th" ? "ความยาก" : "Difficulty";
 }

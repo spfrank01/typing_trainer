@@ -1,3 +1,4 @@
+import { Language } from "./i18n";
 import { Finger } from "./types";
 
 const letterRows = [
@@ -35,8 +36,8 @@ export function getLayoutMap(): Record<string, Finger> {
   return layoutMap;
 }
 
-export function formatFingerLabel(finger: Finger): string {
-  const labels: Record<Finger, string> = {
+export function formatFingerLabel(finger: Finger, language: Language = "en"): string {
+  const labelsEn: Record<Finger, string> = {
     L_PINKY: "Left Pinky",
     L_RING: "Left Ring",
     L_MIDDLE: "Left Middle",
@@ -48,5 +49,17 @@ export function formatFingerLabel(finger: Finger): string {
     THUMB: "Thumb"
   };
 
-  return labels[finger];
+  const labelsTh: Record<Finger, string> = {
+    L_PINKY: "ก้อยซ้าย",
+    L_RING: "นางซ้าย",
+    L_MIDDLE: "กลางซ้าย",
+    L_INDEX: "ชี้ซ้าย",
+    R_INDEX: "ชี้ขวา",
+    R_MIDDLE: "กลางขวา",
+    R_RING: "นางขวา",
+    R_PINKY: "ก้อยขวา",
+    THUMB: "โป้ง"
+  };
+
+  return language === "th" ? labelsTh[finger] : labelsEn[finger];
 }
