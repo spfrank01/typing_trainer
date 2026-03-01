@@ -4,7 +4,7 @@ A desktop-first web app to train correct finger habits for touch typing.
 This MVP focuses on muscle memory and accuracy, not speed.
 
 ## Live Demo
-- https://spfrank01.github.io/typing_tranier/
+- https://spfrank01.github.io/typing_trainer/
 
 ## MVP Focus
 - Step-by-step typing (one strict flow).

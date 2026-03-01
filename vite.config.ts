@@ -9,5 +9,5 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     exclude: ["node_modules", "dist", ".codex/**"]
   },
-  base: "/typing_tranier/"
+  base: "/typing_trainer/"
 });

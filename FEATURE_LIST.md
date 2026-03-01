@@ -27,4 +27,4 @@ This file defines the product and engineering features this repository should tr
 2. Custom text practice mode.
 3. Advanced analytics (heatmaps, trends, deeper metrics).
 4. Multiplayer/competitive features.
-
+5. Word audio feedback in sentence mode (speak current word while typing).

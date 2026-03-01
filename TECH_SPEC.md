@@ -1,7 +1,7 @@
 # Typing Finger Habit Trainer - Technical Specification (MVP v2)
 
 ## 1. Scope
-This spec implements the simplified MVP in [REQUIREMENTS.md](C:\Users\Frank\Desktop\Playground\typing_tranier\REQUIREMENTS.md):
+This spec implements the simplified MVP in [REQUIREMENTS.md](C:\Users\Frank\Desktop\Playground\typing_trainer\REQUIREMENTS.md):
 - Desktop-only typing trainer.
 - Single strict step-by-step mode.
 - Finger habit reinforcement over speed metrics.

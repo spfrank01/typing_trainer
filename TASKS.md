@@ -118,7 +118,8 @@
 - Resources:
   - `./note/Random Sentence Mode.md`
   - `./note/Random Sentence Real Pools.md`
-- [x] Define `random_sentence` mode concept with difficulty-based content pools (easy/medium/hard).
-- [x] Specify rule: one pool item = one paragraph (not one sentence).
-- [x] Create real paragraph pools for all 3 difficulty levels.
-- [x] Expand pool size to reduce repetition risk (15 paragraphs per difficulty).
+- [ ] Define `random_sentence` mode concept with difficulty-based content pools (easy/medium/hard).
+- [ ] Specify rule: one pool item = one paragraph (not one sentence).
+- [ ] Create real paragraph pools for all 3 difficulty levels.
+- [ ] Expand pool size to reduce repetition risk (15 paragraphs per difficulty).
+- [ ] Add word-audio feedback in sentence mode (speak current word while typing).
