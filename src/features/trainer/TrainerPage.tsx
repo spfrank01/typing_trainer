@@ -72,7 +72,7 @@ export function TrainerPage() {
   const availableLessons = lessons.filter((lesson) => lesson.level <= unlockedLevel);
   const sentenceDifficultyLabel = getSentenceDifficultyFieldLabel(language);
   const lastWeakFinger = history.length > 0 ? history[history.length - 1].problematicFinger : null;
-  const startLabel = state.phase === "running" ? text.restart : text.start;
+  const isRunning = state.phase === "running";
 
   function startLesson(lessonId: string) {
     const lesson = getLessonById(lessonId);
@@ -140,55 +140,67 @@ export function TrainerPage() {
 
       <section className="control-bar">
         <div className="lesson-controls">
-          <label htmlFor="mode">{text.mode}</label>
-          <select
-            id="mode"
-            value={mode}
-            onChange={(event) => {
-              const nextMode = event.target.value as TrainerMode;
-              setMode(nextMode);
-              saveMode(nextMode);
-            }}
-          >
-            <option value="learning">{getModeLabel(language, "learning")}</option>
-            <option value="daily_routine">{getModeLabel(language, "daily_routine")}</option>
-            <option value="daily_focus">{getModeLabel(language, "daily_focus")}</option>
-            <option value="random_sentence">{getModeLabel(language, "random_sentence")}</option>
-          </select>
-          {mode === "random_sentence" ? (
-            <>
-              <label htmlFor="sentence-difficulty">{sentenceDifficultyLabel}</label>
+          <div className="control-fields">
+            <div className="control-field">
+              <label htmlFor="mode">{text.mode}</label>
               <select
-                id="sentence-difficulty"
-                value={sentenceDifficulty}
+                id="mode"
+                value={mode}
                 onChange={(event) => {
-                  const nextDifficulty = event.target.value as SentenceDifficulty;
-                  setSentenceDifficulty(nextDifficulty);
-                  saveSentenceDifficulty(nextDifficulty);
+                  const nextMode = event.target.value as TrainerMode;
+                  setMode(nextMode);
+                  saveMode(nextMode);
                 }}
               >
-                <option value="easy">{getSentenceDifficultyLabel(language, "easy")}</option>
-                <option value="medium">{getSentenceDifficultyLabel(language, "medium")}</option>
-                <option value="hard">{getSentenceDifficultyLabel(language, "hard")}</option>
+                <option value="learning">{getModeLabel(language, "learning")}</option>
+                <option value="daily_routine">{getModeLabel(language, "daily_routine")}</option>
+                <option value="daily_focus">{getModeLabel(language, "daily_focus")}</option>
+                <option value="random_sentence">{getModeLabel(language, "random_sentence")}</option>
               </select>
-            </>
-          ) : null}
-          <label htmlFor="lesson">{text.lesson}</label>
-          <select
-            id="lesson"
-            value={selectedLesson.id}
-            disabled={mode !== "learning"}
-            onChange={(event) => setSelectedLessonId(event.target.value)}
-          >
-            {availableLessons.map((lesson) => (
-              <option key={lesson.id} value={lesson.id}>
-                {getLessonLabel(language, lesson.id, lesson.label)}
-              </option>
-            ))}
-          </select>
-          <button type="button" onClick={() => startLesson(selectedLesson.id)}>
-            {startLabel}
-          </button>
+            </div>
+            {mode === "random_sentence" ? (
+              <div className="control-field">
+                <label htmlFor="sentence-difficulty">{sentenceDifficultyLabel}</label>
+                <select
+                  id="sentence-difficulty"
+                  value={sentenceDifficulty}
+                  onChange={(event) => {
+                    const nextDifficulty = event.target.value as SentenceDifficulty;
+                    setSentenceDifficulty(nextDifficulty);
+                    saveSentenceDifficulty(nextDifficulty);
+                  }}
+                >
+                  <option value="easy">{getSentenceDifficultyLabel(language, "easy")}</option>
+                  <option value="medium">{getSentenceDifficultyLabel(language, "medium")}</option>
+                  <option value="hard">{getSentenceDifficultyLabel(language, "hard")}</option>
+                </select>
+              </div>
+            ) : null}
+            <div className="control-field">
+              <label htmlFor="lesson">{text.lesson}</label>
+              <select
+                id="lesson"
+                value={selectedLesson.id}
+                disabled={mode !== "learning"}
+                onChange={(event) => setSelectedLessonId(event.target.value)}
+              >
+                {availableLessons.map((lesson) => (
+                  <option key={lesson.id} value={lesson.id}>
+                    {getLessonLabel(language, lesson.id, lesson.label)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="control-actions">
+            <button
+              type="button"
+              className={isRunning ? "btn-ghost" : "btn-primary"}
+              onClick={() => startLesson(selectedLesson.id)}
+            >
+              {isRunning ? text.restart : text.start}
+            </button>
+          </div>
         </div>
       </section>
 
@@ -215,20 +227,28 @@ export function TrainerPage() {
           </section>
           <section className="train-core">
             <ContextText stream={state.stream} cursor={state.cursor} />
-            <HandDiagram activeFinger={expectedFinger} language={language} />
-            <KeyboardView expectedKey={expectedKey} language={language} />
+            <HandDiagram
+              activeFinger={expectedFinger}
+              language={language}
+              status={state.lastFeedback?.type}
+            />
+            <KeyboardView
+              expectedKey={expectedKey}
+              language={language}
+              status={state.lastFeedback?.type}
+            />
           </section>
         </>
       )}
 
       <footer className="status-bar">
-        <p className="status-chip">
+        <p className="status-item">
           {text.unlockedLevel}: {unlockedLevel}
         </p>
-        <p className="status-chip">
+        <p className="status-item">
           {text.completedSessions}: {history.length}
         </p>
-        <p className="status-chip">
+        <p className="status-item">
           {text.streak}: {streakDays} {text.dayUnit}
         </p>
       </footer>

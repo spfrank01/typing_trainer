@@ -6,6 +6,7 @@ import { renderKeyLabel } from "../core/keyUtils";
 interface KeyboardViewProps {
   expectedKey: string | null;
   language: Language;
+  status?: "correct" | "wrong" | "warning" | "info";
 }
 
 const rows = [
@@ -38,7 +39,7 @@ const legendOrder: Finger[] = [
   "R_PINKY"
 ];
 
-export function KeyboardView({ expectedKey, language }: KeyboardViewProps) {
+export function KeyboardView({ expectedKey, language, status = "info" }: KeyboardViewProps) {
   const map = getLayoutMap();
   const ui = getTrainerUiCopy(language);
 
@@ -61,7 +62,8 @@ export function KeyboardView({ expectedKey, language }: KeyboardViewProps) {
             const classes = [
               "key-cap",
               fingerClass[finger],
-              expectedKey === key ? "is-active" : ""
+              expectedKey === key ? "is-active" : "",
+              expectedKey === key ? `is-${status}` : ""
             ]
               .filter(Boolean)
               .join(" ");
