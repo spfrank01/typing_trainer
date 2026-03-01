@@ -1,5 +1,5 @@
 import { useMemo, useReducer, useState } from "react";
-import { ContextText } from "../../components/ContextText";
+import { ContextText, ContextTextMode } from "../../components/ContextText";
 import { FocusCharacter } from "../../components/FocusCharacter";
 import { HandDiagram } from "../../components/HandDiagram";
 import { KeyboardView } from "../../components/KeyboardView";
@@ -43,6 +43,7 @@ export function TrainerPage() {
     loadSentenceDifficulty()
   );
   const [lastRandomSentence, setLastRandomSentence] = useState<string | null>(null);
+  const [textViewMode, setTextViewMode] = useState<ContextTextMode>("focus_window");
   const [selectedLessonId, setSelectedLessonId] = useState<string>(initialProgress.lastLessonId);
   const [unlockedLevel, setUnlockedLevel] = useState<number>(initialProgress.unlockedLevel);
   const [history, setHistory] = useState<SessionResult[]>(() => loadHistory());
@@ -191,6 +192,18 @@ export function TrainerPage() {
                 ))}
               </select>
             </div>
+            <div className="control-field">
+              <label htmlFor="text-view">Text View</label>
+              <select
+                id="text-view"
+                value={textViewMode}
+                onChange={(event) => setTextViewMode(event.target.value as ContextTextMode)}
+              >
+                <option value="focus_window">Focus Window</option>
+                <option value="centered_cursor">Centered Cursor</option>
+                <option value="full_paragraph">Full Paragraph</option>
+              </select>
+            </div>
           </div>
           <div className="control-actions">
             <button
@@ -226,7 +239,7 @@ export function TrainerPage() {
             </p>
           </section>
           <section className="train-core">
-            <ContextText stream={state.stream} cursor={state.cursor} />
+            <ContextText stream={state.stream} cursor={state.cursor} mode={textViewMode} />
             <HandDiagram
               activeFinger={expectedFinger}
               language={language}
